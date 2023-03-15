@@ -7,12 +7,15 @@ import { ethWalletAtom } from './ethereum'
  * ERC20 tokens are a bit different to work with than Ethers. They are Smart Contracts
  * that hold a map of owners and balances. To transfer tokens, we need to know smart contract address.
  */
-const testToken = {
+export const testToken = {
   address: '0x2d7882beDcbfDDce29Ba99965dd3cdF7fcB10A1e',
   abi: [
+    'function decimals() public view returns (uint8 decimals)',
     'function balanceOf(address _owner) public view returns (uint256 balance)',
     'function transfer(address _to, uint256 _value) public returns (bool success)',
   ],
+  // You can also run `decimals()` to get that
+  decimals: 18,
 }
 
 export const testTokenContractAtom = atom((get) => {

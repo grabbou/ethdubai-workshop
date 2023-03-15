@@ -1,5 +1,6 @@
 import { isAddress } from '@ethersproject/address'
-import { formatEther, parseEther } from '@ethersproject/units'
+import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
+import { formatEther, formatUnits, parseEther, parseUnits } from '@ethersproject/units'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import Web3Auth, { LOGIN_PROVIDER, OPENLOGIN_NETWORK } from '@web3auth/react-native-sdk'
 import * as Clipboard from 'expo-clipboard'
@@ -11,7 +12,7 @@ import { Suspense, useEffect, useState } from 'react'
 import { ActivityIndicator, Alert, Text, TextInput, TouchableOpacity, View } from 'react-native'
 
 import { userStateAtom } from '../data/auth'
-import { testTokenContractAtom } from '../data/contracts'
+import { testToken, testTokenContractAtom } from '../data/contracts'
 import { ethProvider, ethWalletAddress, ethWalletAtom } from '../data/ethereum'
 
 /**
@@ -51,6 +52,7 @@ export default function Home() {
           <WalletAddress />
           <WalletBalance />
           <TransferToWallet />
+          <ERC20TokenBalance />
           <TransferERC20TokenToWallet />
         </Suspense>
       )}
@@ -234,7 +236,7 @@ const TransferToWallet = () => {
  * pick `Mumbai` (unless you changed the default configuration) and then,
  * choose `Test ERC20` to airdrop some tokens
  */
-const TransferERC20TokenToWallet = () => {
+const ERC20TokenBalance = () => {
   const wallet = useAtomValue(ethWalletAtom)
   const tokenContract = useAtomValue(testTokenContractAtom)
 
@@ -253,7 +255,73 @@ const TransferERC20TokenToWallet = () => {
 
   return (
     <>
-      <Text>Balance of test ERC-20 token: {balance.toString()}</Text>
+      <Text>Balance of test ERC-20 token: {formatUnits(balance, testToken.decimals)}</Text>
+    </>
+  )
+}
+
+const TransferERC20TokenToWallet = () => {
+  const queryClient = useQueryClient()
+  const tokenContract = useAtomValue(testTokenContractAtom)
+
+  /** Read similar comment in `TransferTokenToWallet` */
+  const [toWallet, setToWallet] = useState('')
+
+  const sendEthToWallet = useMutation({
+    mutationKey: ['sendToWallet', 'testToken'],
+    mutationFn: async () => {
+      if (!isAddress(toWallet)) {
+        throw new Error('Invalid wallet address')
+      }
+
+      /**
+       * We're temporarily asserting types here until we provide type definitions
+       * for our token contract
+       */
+      const tx = (await tokenContract.transfer(
+        toWallet,
+        /**
+         * Keep in mind that Faucet is rate-limited, so for testing purposes, it's a good idea
+         * to keep the number of tokens transferred on the lower side
+         */
+        parseUnits('0.0001', testToken.decimals)
+      )) as TransactionResponse
+
+      const receipt = (await tx.wait()) as TransactionReceipt
+
+      return { tx, receipt }
+    },
+    onSuccess: ({ tx }) => {
+      Alert.alert('Transaction completed', `Transaction hash: ${tx.hash}`, [
+        {
+          text: 'OK',
+        },
+        {
+          text: 'View on Polygonscan',
+          onPress: () => WebBrowser.openBrowserAsync(`https://mumbai.polygonscan.com/tx/${tx.hash}`),
+        },
+      ])
+      /**
+       * We not only have to update ERC-20 token balance, but also balance of main wallet
+       * where some tokens were spent on gas fees.
+       *
+       * At this point, I think we're good to just re-fetch both queries (note we're invalidating only the
+       * root key).
+       *
+       * This is just to demonstrate alternative approaches, you should pick one that works better for your use case.
+       */
+      queryClient.invalidateQueries(['balance'])
+    },
+    onError: (error) => {
+      Alert.alert('Something went wrong', JSON.stringify(error))
+    },
+  })
+
+  return (
+    <>
+      <TextInput placeholder="Wallet address" onChangeText={setToWallet} value={toWallet} />
+      <Text onPress={() => sendEthToWallet.mutateAsync()}>Transfer Eth to a friend</Text>
+      {sendEthToWallet.isLoading && <ActivityIndicator />}
     </>
   )
 }
