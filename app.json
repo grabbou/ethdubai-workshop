@@ -3,6 +3,9 @@
     "name": "workshop-app",
     "slug": "workshop-app",
     "scheme": "myworkshopapp",
+    "extra": {
+      "web3authClientId": "BAv1o0QXMQd28C-BEKfVCgBMf8xlT_aEOBd4tOl7yP59lgIp6ZJs0_aGGEPwV8R3xixExnZWuaLbYXs2a_YnRyA"
+    },
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
