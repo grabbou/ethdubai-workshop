@@ -1,3 +1,4 @@
+import { formatEther } from '@ethersproject/units'
 import { useQuery } from '@tanstack/react-query'
 import Web3Auth, { LOGIN_PROVIDER, OPENLOGIN_NETWORK } from '@web3auth/react-native-sdk'
 import * as Clipboard from 'expo-clipboard'
@@ -121,7 +122,7 @@ const WalletBalance = () => {
 
   return (
     <>
-      <Text>Balance: {balance.toString()}</Text>
+      <Text>Balance: {formatEther(balance)}</Text>
     </>
   )
 }
