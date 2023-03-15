@@ -26,7 +26,9 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
-    "@toruslabs/openlogin": "^3.2.0"
+    "@toruslabs/openlogin": "^3.2.0",
+    "@uniswap/eslint-config": "^1.1.1",
+    "eslint": "^8.33.0"
   },
   "private": true
 }

@@ -1,14 +1,15 @@
 import './app/polyfills'
 
-import { StyleSheet, View } from 'react-native';
-import Home from './app/pages/Home';
+import { StyleSheet, View } from 'react-native'
+
+import Home from './app/pages/Home'
 
 export default function App() {
   return (
     <View style={styles.container}>
       <Home />
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -18,4 +19,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-});
+})
