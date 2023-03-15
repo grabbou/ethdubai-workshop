@@ -18,6 +18,10 @@ export const testToken = {
   decimals: 18,
 }
 
+/**
+ * Returns Contract instance associated with an active wallet. This is a derived atom, so its value will change
+ * only when underlying `ethWalletAtom` changes.
+ */
 export const testTokenContractAtom = atom((get) => {
   const ethWallet = get(ethWalletAtom)
   return new Contract(testToken.address, testToken.abi, ethWallet)

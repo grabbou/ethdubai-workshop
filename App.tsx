@@ -16,6 +16,9 @@ const queryClient = new QueryClient({
   },
 })
 
+/**
+ * Wrap main application with providers and render Single Page
+ */
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
