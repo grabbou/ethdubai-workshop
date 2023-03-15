@@ -11,6 +11,7 @@ import { Suspense, useEffect, useState } from 'react'
 import { ActivityIndicator, Alert, Text, TextInput, TouchableOpacity, View } from 'react-native'
 
 import { userStateAtom } from '../data/auth'
+import { testTokenContractAtom } from '../data/contracts'
 import { ethProvider, ethWalletAddress, ethWalletAtom } from '../data/ethereum'
 
 /**
@@ -50,6 +51,7 @@ export default function Home() {
           <WalletAddress />
           <WalletBalance />
           <TransferToWallet />
+          <TransferERC20TokenToWallet />
         </Suspense>
       )}
       {user ? (
@@ -221,6 +223,37 @@ const TransferToWallet = () => {
       <TextInput placeholder="Wallet address" onChangeText={setToWallet} value={toWallet} />
       <Text onPress={() => sendEthToWallet.mutateAsync()}>Transfer Eth to a friend</Text>
       {sendEthToWallet.isLoading && <ActivityIndicator />}
+    </>
+  )
+}
+
+/**
+ * Transfering ERC20 tokens to another wallet address.
+ *
+ * To airdrop some tokens, visit Polygon Faucet https://faucet.polygon.technology,
+ * pick `Mumbai` (unless you changed the default configuration) and then,
+ * choose `Test ERC20` to airdrop some tokens
+ */
+const TransferERC20TokenToWallet = () => {
+  const wallet = useAtomValue(ethWalletAtom)
+  const tokenContract = useAtomValue(testTokenContractAtom)
+
+  const balance = useQuery({
+    /**
+     * Note that `queryKey` is an array. This is useful when we want to invalidate queries
+     * that are related.
+     *
+     * For example, in order to invalidate all `balances`, a simple: invalidateQueries: ['balance'] would do.
+     */
+    queryKey: ['balance', 'testToken'],
+    queryFn: async () => {
+      return await tokenContract.balanceOf(wallet.address)
+    },
+  }).data!
+
+  return (
+    <>
+      <Text>Balance of test ERC-20 token: {balance.toString()}</Text>
     </>
   )
 }
