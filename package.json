@@ -17,6 +17,7 @@
     "@web3auth/react-native-sdk": "^3.5.0",
     "buffer": "^6.0.3",
     "expo": "~48.0.6",
+    "expo-clipboard": "~4.1.2",
     "expo-constants": "~14.2.1",
     "expo-crypto": "~12.2.1",
     "expo-linking": "~4.0.1",
