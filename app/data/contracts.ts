@@ -1,6 +1,6 @@
-import { Contract } from '@ethersproject/contracts'
 import { atom } from 'jotai'
 
+import { Erc20__factory } from '../../types/ethers-contracts'
 import { ethWalletAtom } from './ethereum'
 
 /**
@@ -24,5 +24,5 @@ export const testToken = {
  */
 export const testTokenContractAtom = atom((get) => {
   const ethWallet = get(ethWalletAtom)
-  return new Contract(testToken.address, testToken.abi, ethWallet)
+  return Erc20__factory.connect(testToken.address, ethWallet)
 })

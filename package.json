@@ -6,7 +6,9 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "postinstall": "yarn generate-types",
+    "generate-types": "typechain --target=ethers-v5 'app/abi/*.json'"
   },
   "dependencies": {
     "@ethersproject/address": "^5.7.0",
@@ -35,8 +37,10 @@
   "devDependencies": {
     "@babel/core": "^7.20.0",
     "@toruslabs/openlogin": "^3.2.0",
+    "@typechain/ethers-v5": "^10.2.0",
     "@uniswap/eslint-config": "^1.1.1",
-    "eslint": "^8.33.0"
+    "eslint": "^8.33.0",
+    "typechain": "^8.1.1"
   },
   "private": true
 }

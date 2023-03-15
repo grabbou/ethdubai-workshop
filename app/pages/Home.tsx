@@ -1,5 +1,4 @@
 import { isAddress } from '@ethersproject/address'
-import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 import { formatEther, formatUnits, parseEther, parseUnits } from '@ethersproject/units'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import Web3Auth, { LOGIN_PROVIDER, OPENLOGIN_NETWORK } from '@web3auth/react-native-sdk'
@@ -278,16 +277,16 @@ const TransferERC20TokenToWallet = () => {
        * We're temporarily asserting types here until we provide type definitions
        * for our token contract
        */
-      const tx = (await tokenContract.transfer(
+      const tx = await tokenContract.transfer(
         toWallet,
         /**
          * Keep in mind that Faucet is rate-limited, so for testing purposes, it's a good idea
          * to keep the number of tokens transferred on the lower side
          */
         parseUnits('0.0001', testToken.decimals)
-      )) as TransactionResponse
+      )
 
-      const receipt = (await tx.wait()) as TransactionReceipt
+      const receipt = await tx.wait()
 
       return { tx, receipt }
     },
