@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query'
 import Web3Auth, { LOGIN_PROVIDER, OPENLOGIN_NETWORK } from '@web3auth/react-native-sdk'
 import * as Clipboard from 'expo-clipboard'
 import Constants, { AppOwnership } from 'expo-constants'
@@ -8,7 +9,7 @@ import { Suspense, useEffect, useState } from 'react'
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native'
 
 import { userStateAtom } from '../data/auth'
-import { ethWalletAddress } from '../data/ethereum'
+import { ethProvider, ethWalletAddress } from '../data/ethereum'
 
 /**
  * Automatically determine redirect URL whether we're running in Managed mode or Standalone
@@ -45,6 +46,7 @@ export default function Home() {
       {user && (
         <Suspense fallback={<ActivityIndicator />}>
           <WalletAddress />
+          <WalletBalance />
         </Suspense>
       )}
       {user ? (
@@ -81,6 +83,45 @@ const WalletAddress = () => {
     <>
       <Text onPress={copyToClipboard}>Wallet address: {address}</Text>
       {copied && <Text>Copied!</Text>}
+    </>
+  )
+}
+
+/**
+ * Reads balance from chain and displays it on screen
+ *
+ * To airdrop some tokens, visit Polygon Faucet https://faucet.polygon.technology
+ * and pick `Mumbai` (unless you changed the default configuration)
+ */
+const WalletBalance = () => {
+  const walletAddress = useAtomValue(ethWalletAddress)
+
+  /**
+   * We could use `useState` and `useEffect` to accomplish the same thing, but
+   * it is more future-proof to use React Query here. Not only it has first-class
+   * support for Suspense, but also allows for caching and invalidating results
+   * when an update is needed.
+   *
+   * We will get to it soon, when we start working on sending transactions.
+   */
+  const balance = useQuery({
+    queryKey: ['balance'],
+    queryFn: async () => {
+      return await ethProvider.getBalance(walletAddress)
+    },
+    /**
+     * We're asserting `data!` exists. This is because we know we're running in Suspense mode.
+     * At the time of making this workshop, React Query doesn't have Suspense-specific hooks yet,
+     * which means that we would have to handle the loading state explicitly. That, of course,
+     * makes no sense in Suspense mode because the execution will pause until this Promise is resolved.
+     *
+     * Context: https://github.com/TanStack/query/issues/1297#issuecomment-1153092135
+     */
+  }).data!
+
+  return (
+    <>
+      <Text>Balance: {balance.toString()}</Text>
     </>
   )
 }
