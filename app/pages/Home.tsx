@@ -2,10 +2,12 @@ import Web3Auth, { LOGIN_PROVIDER, OPENLOGIN_NETWORK } from '@web3auth/react-nat
 import Constants, { AppOwnership } from 'expo-constants'
 import * as Linking from 'expo-linking'
 import * as WebBrowser from 'expo-web-browser'
-import { useAtom } from 'jotai'
-import { Text, TouchableOpacity, View } from 'react-native'
+import { useAtom, useAtomValue } from 'jotai'
+import { Suspense } from 'react'
+import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native'
 
 import { userStateAtom } from '../data/auth'
+import { ethWalletAddress } from '../data/ethereum'
 
 /**
  * Automatically determine redirect URL whether we're running in Managed mode or Standalone
@@ -39,7 +41,7 @@ export default function Home() {
   }
   return (
     <View>
-      {user && <Text>{JSON.stringify(user)}</Text>}
+      {user && <Suspense fallback={<ActivityIndicator />}><WalletAddress /></Suspense>}
       {user ? (
         <TouchableOpacity onPress={logout}>
           <Text>Logout</Text>
@@ -50,5 +52,12 @@ export default function Home() {
         </TouchableOpacity>
       )}
     </View>
+  )
+}
+
+const WalletAddress = () => {
+  const address = useAtomValue(ethWalletAddress)
+  return (
+    <Text>Wallet address: {address}</Text>
   )
 }
